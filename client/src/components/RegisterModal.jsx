@@ -1,5 +1,11 @@
-﻿
+﻿import { useState } from "react";
+import OtpModal from "./OtpModal";
 export default function RegisterModal({ isOpen, onClose }) {
+    if (!isOpen) return null;
+
+    const [isOtpOpen, setIsOtpOpen] = useState(false);
+    const [mobile, setMobile] = useState("");
+
     if (!isOpen) return null;
 
     return (
@@ -29,7 +35,12 @@ export default function RegisterModal({ isOpen, onClose }) {
                 <div className="mt-8 grid md:grid-cols-2 gap-4">
                     <input className="border rounded-xl px-4 py-3" placeholder="Full Name" />
 
-                    <input className="border rounded-xl px-4 py-3" placeholder="Mobile Number" />
+                    <input
+                        className="border rounded-xl px-4 py-3"
+                        placeholder="Mobile Number"
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value)}
+                    />
 
                     <input className="border rounded-xl px-4 py-3" placeholder="Email Address" />
 
@@ -51,8 +62,11 @@ export default function RegisterModal({ isOpen, onClose }) {
                     <input className="border rounded-xl px-4 py-3" placeholder="Password" type="password" />
                 </div>
 
-                <button className="w-full mt-6 bg-[#800020] text-white py-3 rounded-xl font-semibold hover:bg-[#5c0017]">
-                    Create Account
+                <button
+                    onClick={() => setIsOtpOpen(true)}
+                    className="w-full mt-6 bg-[#800020] text-white py-3 rounded-xl font-semibold hover:bg-[#5c0017]"
+                >
+                    Send OTP
                 </button>
 
                 <p className="text-center text-sm text-gray-500 mt-6">
@@ -62,6 +76,11 @@ export default function RegisterModal({ isOpen, onClose }) {
                     </span>
                 </p>
             </div>
+            <OtpModal
+                isOpen={isOtpOpen}
+                onClose={() => setIsOtpOpen(false)}
+                mobile={mobile}
+            />
         </div>
     );
 }
