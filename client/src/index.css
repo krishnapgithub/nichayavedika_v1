@@ -11,3 +11,28 @@ html,
 body {
     overflow-x: hidden;
 }
+
+/* =========================
+   NichayaVedika Design System
+   ========================= */
+
+.nv-section {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.nv-section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.nv-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+

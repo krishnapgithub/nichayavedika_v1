@@ -64,7 +64,7 @@ function Home() {
                 </div>
 
                 {/* Stats */}
-                <section className="py-20 bg-white">
+                <section className="nv-section bg-white">
                     <div className="max-w-7xl mx-auto px-6">
 
                         <h2 className="text-4xl font-bold text-center text-gray-900">
@@ -134,7 +134,7 @@ function Home() {
                     </div>
                 </section>
 
-                <section className="py-20 bg-gradient-to-b from-rose-50 to-white">
+                <section className="nv-section bg-gradient-to-b from-rose-50 to-white">
                     <div className="max-w-7xl mx-auto px-6">
 
                         <h2 className="text-4xl font-bold text-center text-gray-900">
@@ -228,7 +228,7 @@ function Home() {
                     </div>
                 </section>
 
-                <section className="py-20 bg-white">
+                <section className="nv-section bg-white">
                     <div className="max-w-7xl mx-auto px-6">
 
                         <h2 className="text-4xl font-bold text-center text-gray-900">
@@ -291,7 +291,7 @@ function Home() {
                 </section>
 
                 {/* Profiles */}
-                <section className="py-20 bg-gradient-to-b from-white to-rose-50">
+                <section className="nv-section bg-gradient-to-b from-white to-rose-50">
                     <div className="max-w-7xl mx-auto px-6">
 
                         <h2 className="text-4xl font-bold text-center text-gray-900">
@@ -365,7 +365,7 @@ function Home() {
                         </div>
                     </div>
                 </section>
-                <footer className="bg-gray-900 text-white py-12">
+                <footer className="bg-gray-900 text-white py-10">
                     <div className="max-w-7xl mx-auto px-6">
 
                         <div className="grid md:grid-cols-4 gap-8">
