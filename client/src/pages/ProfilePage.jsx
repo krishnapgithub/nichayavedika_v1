@@ -3,10 +3,39 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/Header.jsx";
 
+
 export default function ProfilePage() {
     const { id } = useParams();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const [interestSent, setInterestSent] = useState(false);
+
+    const sendInterest = async () => {
+        if (!profile?._id) {
+            alert("Profile not loaded yet");
+            return;
+        }
+
+        try {
+            const response = await axios.post("http://localhost:5000/api/interests/send", {
+                fromUser: "6a39857828603c403e7c71bf",
+                toProfile: profile._id,
+            });
+
+            console.log("INTEREST SUCCESS:", response.data);
+
+            setInterestSent(true);
+            alert("Interest Sent Successfully ❤️");
+        } catch (error) {
+            console.log("INTEREST ERROR:", error);
+            console.log("SERVER RESPONSE:", error.response?.data);
+
+            alert(error.response?.data?.message || "Failed to send interest");
+        }
+    };
+
+    
 
     useEffect(() => {
         fetchProfile();
@@ -89,8 +118,17 @@ export default function ProfilePage() {
                                 {profile.city}, {profile.state}
                             </p>
 
-                            <button className="mt-6 bg-[#800020] text-white px-10 py-3 rounded-xl font-semibold">
-                                ❤️ Send Interest
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    console.log("BUTTON CLICKED");
+                                    sendInterest();
+                                }}
+                                disabled={interestSent}
+                                className={`mt-6 px-10 py-3 rounded-xl font-semibold text-white ${interestSent ? "bg-green-600" : "bg-[#800020]"
+                                    }`}
+                            >
+                                {interestSent ? "✓ Interest Sent" : "❤️ Send Interest"}
                             </button>
                         </div>
                     </div>
@@ -143,6 +181,7 @@ export default function ProfilePage() {
         </>
     );
 }
+
 
 function Section({ title, children, full }) {
     return (
