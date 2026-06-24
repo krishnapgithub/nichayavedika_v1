@@ -6,6 +6,8 @@ import SessionTimeout from "./components/SessionTimeout.jsx";
 
 function App() {
     const isLoggedIn = !!localStorage.getItem("user");
+    console.log("SessionTimeout Loaded", isLoggedIn);
+    console.log("Krishna", localStorage.getItem("user"));
     
 
     const handleLogout = () => {

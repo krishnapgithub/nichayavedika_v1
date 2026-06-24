@@ -1,240 +1,380 @@
-﻿import { useState, useEffect } from "react";
+﻿import { useEffect,useState } from "react";
 import axios from "axios";
-import Header from "../components/Header.jsx";
-import toast from "react-hot-toast";
 
-//const USER_ID = "6a39857828603c403e7c71bf";
-
-const user = JSON.parse(localStorage.getItem("user"));
-const USER_ID = user?._id || "6a39857828603c403e7c71bf";
+import { API_BASE_URL } from "../config/api";
 
 
-export default function CreateProfile({ isModal = false, onClose }) {
 
-
+export default function CreateProfile({ onClose }) {
 
     
     const [formData, setFormData] = useState({
-        user: USER_ID,
+        fullName: "",
+        gender: "",
         dateOfBirth: "",
         age: "",
         height: "",
-        education: "",
-        occupation: "",
-        annualIncome: "",
+        maritalStatus: "Never Married",
+
+        motherTongue: "Telugu",
+        religion: "Hindu",
         caste: "",
         subCaste: "",
         gothram: "",
+
+        education: "",
+        occupation: "",
+        annualIncome: "",
+
         city: "",
         state: "",
+        country: "India",
+
+        familyDetails: "",
+        contactPreference: "Phone",
+
         aboutMe: "",
+
+        preferredAgeFrom: "",
+        preferredAgeTo: "",
+        preferredCaste: "",
+        preferredLocation: "",
+        profile
+
+
+            : null,
     });
 
-    const fetchProfile = async () => {
-        try {
-            const response = await axios.get(
-                `${API_BASE_URL}/profiles/user/${USER_ID}`
-            );
-
-            const profile = response.data.profile;
-
-            setFormData({
-                ...profile,
-                user: USER_ID,
-            });
-
-            console.log("Profile Loaded");
-        } catch (error) {
-            console.log("No profile found");
-        }
-    };
-
-    useEffect(() => {
-        if (USER_ID) {
-            fetchProfile();
-        }
-    }, [USER_ID]);
-
-
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
-
-        
-    };
-
-    const handleSubmit = async () => {
-        try {
-
-            let response;
-
-            if (formData._id) {
-                response = await axios.put(
-                    `${API_BASE_URL}/profiles/user/${USER_ID}`,
-                    formData
-                );
-            } else {
-                response = await axios.post(
-                    "${API_BASE_URL}/profiles/create",
-                    formData
-                );
-            }
-
-            //alert(response.data.message);
-            toast.success(response.data.message);
-
-            if (onClose) {
-                onClose();
-            }
-
-        } catch (error) {
-            console.error(error);
-            //alert(
-              //  error.response?.data?.message ||
-              //  "Error saving profile"
-            //);
-            toast.error(
-                error.response?.data?.message || "Error saving profile"
-            );
-        }
-    };
-
-
-    const [preview, setPreview] = useState("");
-    const [photoFile, setPhotoFile] = useState(null);
+        const [photoPreview, setPhotoPreview] = useState(null);
 
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
 
-        if (file) {
-            setPhotoFile(file);
-            setPreview(URL.createObjectURL(file));
+        if (!file) return;
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png"
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            alert("Only JPG, JPEG and PNG files are allowed.");
+            return;
         }
+
+        const maxSize = 2 * 1024 * 1024; // 2MB
+
+        if (file.size > maxSize) {
+            alert("Photo size should be less than 2 MB.");
+            return;
+        }
+
+        setFormData({
+            ...formData,
+            profilePhoto: file,
+        });
+
+        setPhotoPreview(URL.createObjectURL(file));
     };
 
-    const handlePhotoUpload = async () => {
-        try {
-            const data = new FormData();
-            data.append("profilePhoto", photoFile);
+    
 
-            const response = await axios.put(
-                `${API_BASE_URL}/profiles/user/${USER_ID}/photo`,
-                data
+    const calculateAge = (dob) => {
+        if (!dob) return "";
+
+        const birthDate = new Date(dob);
+        const today = new Date();
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        
+
+        if (
+            monthDiff < 0 ||
+            (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
+            age--;
+        }
+
+        return age;
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        if (name === "dateOfBirth") {
+            setFormData({
+                ...formData,
+                dateOfBirth: value,
+                age: calculateAge(value),
+            });
+            return;
+        }
+
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const payload = new FormData();
+
+            Object.keys(formData).forEach((key) => {
+                payload.append(key, formData[key]);
+            });
+
+            await axios.post(
+                `${API_BASE_URL}/profiles/create`,
+                payload,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
             );
 
-            toast.success(response.data.message);
-            setFormData(response.data.profile);
+            alert("Profile Created Successfully");
+            onClose();
         } catch (error) {
-            toast.error("Photo upload failed");
+            console.error(error);
+            alert("Failed to create profile");
         }
     };
-
-
     return (
-        <>
-            {!isModal && <Header />}
+        
 
-            <main className={isModal ? "" : "pt-28 bg-rose-50 min-h-screen"}>
-                <div className={isModal ? "w-full" : "max-w-6xl mx-auto px-6 py-10"}>
-                    <div className="bg-white rounded-3xl shadow-2xl border border-rose-100 overflow-hidden">
+        <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-4">
+            <p className="md:col-span-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+                Fields marked with <strong>*</strong> are required to create your profile.
+            </p>
+                    <h3 className="md:col-span-2 font-bold text-[#800020]">
+                        Basic Information
+                    </h3>
 
-                        <div className="bg-gradient-to-r from-[#800020] to-[#b11246] px-8 py-4 text-center">
-                            <h1 className="text-3xl font-bold text-white">
-                                {USER_ID && formData._id
-                                    ? "Update Your Profile"
-                                    : "Create Your Profile"}
-                            </h1>
-                            <p className="text-rose-100 mt-1 text-sm">
-                                Complete your details to find better Telugu matches
-                            </p>
+            <input
+                name="fullName"
+                placeholder="Full Name *"
+                className="border p-3 rounded-lg"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
+            />
+
+            <select
+                name="gender"
+                className="border p-3 rounded-lg"
+                value={formData.gender}
+                onChange={handleChange}
+                required
+            >
+                <option value="">Select Gender *</option>
+                <option value="Bride">Bride</option>
+                <option value="Groom">Groom</option>
+            </select>
+
+
+            <input
+                type="date"
+                name="dateOfBirth"
+                className="border p-3 rounded-lg"
+                value={formData.dateOfBirth}
+                onChange={handleChange}
+                required
+            />
+
+            <input
+                name="age"
+                placeholder="Age"
+                className="border p-3 rounded-lg bg-gray-100"
+                value={formData.age}
+                readOnly
+            />
+
+            <input
+                name="height"
+                placeholder="Height * (e.g. 5ft 8in)"
+                className="border p-3 rounded-lg"
+                value={formData.height}
+                onChange={handleChange}
+                required
+            />
+
+            <select
+                name="maritalStatus"
+                className="border p-3 rounded-lg"
+                value={formData.maritalStatus}
+                onChange={handleChange}
+            >
+                <option value="Never Married">Never Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+            </select>
+
+            <input
+                name="motherTongue"
+                placeholder="Mother Tongue"
+                className="border p-3 rounded-lg"
+                value={formData.motherTongue}
+                onChange={handleChange}
+            />
+                    <h3 className="md:col-span-2 font-bold text-[#800020] mt-4">
+                        Community Information
+                    </h3>
+
+                    <input name="religion" placeholder="Religion" className="border p-3 rounded-lg" value={formData.religion} onChange={handleChange} />
+            <input
+                name="caste"
+                placeholder="Caste *"
+                className="border p-3 rounded-lg"
+                value={formData.caste}
+                onChange={handleChange}
+                required
+            />
+
+            <input name="subCaste" placeholder="Sub Caste" className="border p-3 rounded-lg" value={formData.subCaste} onChange={handleChange} />
+                    <input name="gothram" placeholder="Gothram" className="border p-3 rounded-lg" value={formData.gothram} onChange={handleChange} />
+
+                    <h3 className="md:col-span-2 font-bold text-[#800020] mt-4">
+                        Education & Career
+                    </h3>
+
+            <input
+                name="education"
+                placeholder="Education *"
+                className="border p-3 rounded-lg"
+                value={formData.education}
+                onChange={handleChange}
+                required
+            />
+
+            <input
+                name="occupation"
+                placeholder="Occupation *"
+                className="border p-3 rounded-lg"
+                value={formData.occupation}
+                onChange={handleChange}
+                required
+            />
+                    <input name="annualIncome" placeholder="Annual Income" className="border p-3 rounded-lg" value={formData.annualIncome} onChange={handleChange} />
+
+                    <h3 className="md:col-span-2 font-bold text-[#800020] mt-4">
+                        Location
+                    </h3>
+
+            <input
+                name="city"
+                placeholder="City *"
+                className="border p-3 rounded-lg"
+                value={formData.city}
+                onChange={handleChange}
+                required
+            />
+
+            <input
+                name="state"
+                placeholder="State *"
+                className="border p-3 rounded-lg"
+                value={formData.state}
+                onChange={handleChange}
+                required
+            />
+                    <input name="country" placeholder="Country" className="border p-3 rounded-lg" value={formData.country} onChange={handleChange} />
+
+                    <h3 className="md:col-span-2 font-bold text-[#800020] mt-4">
+                        About Me
+                    </h3>
+
+                    <textarea name="aboutMe" placeholder="About Me" rows="4" className="border p-3 rounded-lg md:col-span-2" value={formData.aboutMe} onChange={handleChange} />
+
+                    <h3 className="md:col-span-2 font-bold text-[#800020] mt-4">
+                        Partner Preferences
+                    </h3>
+
+                    <input name="preferredAgeFrom" placeholder="Preferred Age From" className="border p-3 rounded-lg" value={formData.preferredAgeFrom} onChange={handleChange} />
+                    <input name="preferredAgeTo" placeholder="Preferred Age To" className="border p-3 rounded-lg" value={formData.preferredAgeTo} onChange={handleChange} />
+                    <input name="preferredCaste" placeholder="Preferred Caste" className="border p-3 rounded-lg" value={formData.preferredCaste} onChange={handleChange} />
+                    <input name="preferredLocation" placeholder="Preferred Location" className="border p-3 rounded-lg" value={formData.preferredLocation} onChange={handleChange} />
+
+                    
+
+                    <h3 className="md:col-span-2 font-bold text-[#800020] mt-4">
+                        Family Details
+                    </h3>
+
+                    <textarea
+                        name="familyDetails"
+                        placeholder="Family Details"
+                        rows="3"
+                        className="border p-3 rounded-lg md:col-span-2"
+                        value={formData.familyDetails}
+                        onChange={handleChange}
+                    />
+
+            <h3 className="md:col-span-2 font-bold text-[#800020] mt-4">
+                Contact Preference
+            </h3>
+
+            <p className="md:col-span-2 text-sm text-gray-500 -mt-2">
+                How would you prefer prospective matches to contact you?
+            </p>
+
+                    <select
+                        name="contactPreference"
+                        className="border p-3 rounded-lg"
+                        value={formData.contactPreference}
+                        onChange={handleChange}
+                    >
+                        <option value="Phone">Phone</option>
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Email">Email</option>
+                        <option value="Any">Any</option>
+                    </select>
+
+            <h3 className="md:col-span-2 font-bold text-[#800020] mt-4">
+                Profile Photo
+            </h3>
+
+            <p className="md:col-span-2 text-sm text-gray-500 -mt-2">
+                Upload a clear profile photo. <span className="text-red-600">*</span> Required
+            </p>
+            <p className="text-xs text-gray-500">
+                Accepted formats: JPG, JPEG, PNG • Maximum size: 2 MB
+            </p>
+                    <div className="md:col-span-2 flex flex-col items-center gap-3">
+
+                        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-[#800020] bg-gray-100">
+                            {photoPreview ? (
+                                <img
+                                    src={photoPreview}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                    Photo
+                                </div>
+                            )}
                         </div>
 
-                        <div className="p-5">
-                            <div className="flex items-center justify-center gap-4 mb-3">
-                                <div className="w-20 h-20 rounded-full bg-rose-50 border-4 border-white shadow-xl overflow-hidden flex items-center justify-center ring-4 ring-rose-100">
-                                    {preview || formData.profilePhoto ? (
-                                        <img
-                                            src={preview || formData.profilePhoto}
-                                            alt="Profile"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <span className="text-gray-400 text-sm">No Photo</span>
-                                    )}
-                                </div>
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    required={!photoPreview}
+                    className="text-sm"
+                />
 
-                                <div className="flex items-center justify-center gap-6 mb-4">
-                                    <label className="cursor-pointer border border-[#800020] text-[#800020] px-5 py-2 rounded-xl text-sm font-semibold text-center hover:bg-rose-50">
-                                        Choose Photo
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handlePhotoChange}
-                                            className="hidden"
-                                        />
-                                    </label>
-
-                                    <button
-                                        type="button"
-                                        onClick={handlePhotoUpload}
-                                        className="text-sm bg-[#800020] text-white px-5 py-2 rounded-xl hover:bg-[#5c0017]"
-                                    >
-                                        Upload Photo
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="grid md:grid-cols-3 gap-4">
-                                <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" />
-
-                                <input name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" placeholder="Age" />
-
-                                <input name="height" value={formData.height} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" placeholder="Height" />
-
-                                <input name="education" value={formData.education} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" placeholder="Education" />
-
-                                <input name="occupation" value={formData.occupation} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" placeholder="Occupation" />
-
-                                <input name="annualIncome" value={formData.annualIncome} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" placeholder="Annual Income" />
-
-                                <input name="caste" value={formData.caste} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" placeholder="Caste" />
-
-                                <input name="subCaste" value={formData.subCaste} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" placeholder="Sub Caste" />
-
-                                <input name="gothram" value={formData.gothram} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" placeholder="Gothram" />
-
-                                <input name="city" value={formData.city} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" placeholder="City" />
-
-                                <input name="state" value={formData.state} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]" placeholder="State" />
-                            </div>
-
-                            <textarea
-                                name="aboutMe"
-                                value={formData.aboutMe}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-xl px-4 py-8 bg-white focus:outline-none focus:ring-2 focus:ring-[#800020] mt-4"
-                                rows="1"
-                                placeholder="About Me"
-                            />
-
-                            <div className="flex justify-end mt-3">
-                                <button
-                                    onClick={handleSubmit}
-                                    className="bg-gradient-to-r from-[#800020] to-[#b11246] text-white px-8 py-2 rounded-xl font-semibold hover:shadow-xl transition"
-                                >
-                                    {USER_ID && formData._id
-                                        ? "Update Profile"
-                                        : "Save Profile"}
-                                </button>
-                            </div>
-
-
-                        </div>
                     </div>
-                </div>
-            </main>
-        </>
+
+                    <button type="submit" className="md:col-span-2 bg-[#800020] text-white py-3 rounded-xl font-semibold mt-4">
+                        Save Profile
+                    </button>
+                </form>
+            
     );
 }

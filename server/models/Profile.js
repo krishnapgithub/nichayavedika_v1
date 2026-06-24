@@ -9,17 +9,28 @@ const profileSchema = new mongoose.Schema(
             unique: true,
         },
 
+        fullName: String,
+        gender: String,
         dateOfBirth: Date,
         age: Number,
         height: String,
+        maritalStatus: String,
+
+        motherTongue: {
+            type: String,
+            default: "Telugu",
+        },
+        religion: {
+            type: String,
+            default: "Hindu",
+        },
+        caste: String,
+        subCaste: String,
+        gothram: String,
 
         education: String,
         occupation: String,
         annualIncome: String,
-
-        caste: String,
-        subCaste: String,
-        gothram: String,
 
         city: String,
         state: String,
@@ -28,7 +39,18 @@ const profileSchema = new mongoose.Schema(
             default: "India",
         },
 
+        familyDetails: String,
+        contactPreference: {
+            type: String,
+            default: "Phone",
+        },
+
         aboutMe: String,
+
+        preferredAgeFrom: Number,
+        preferredAgeTo: Number,
+        preferredCaste: String,
+        preferredLocation: String,
 
         profilePhoto: {
             type: String,

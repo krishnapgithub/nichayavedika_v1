@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import Header from "../components/Header";
+import Header from "../components/Header.jsx";
 
 const profiles = [
     {
@@ -40,7 +40,7 @@ export default function ProfilePage() {
         <>
             <Header />
 
-            <div className="max-w-4xl mx-auto p-6">
+            <div className="max-w-4xl mx-auto p-6 pt-32">
                 <div className="bg-white shadow-xl rounded-2xl p-6">
 
                     <div className="h-40 w-40 bg-gray-200 rounded-full mx-auto flex items-center justify-center">

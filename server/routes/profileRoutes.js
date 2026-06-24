@@ -5,14 +5,15 @@ import multer from "multer";
 
 import {
     createProfile,
-    getProfiles,
     updateProfile,
+    getProfiles,
     getProfileByUser,
-    uploadProfilePhoto,
     checkProfileViewAccess
 } from "../controllers/profileController.js";
 
 const router = express.Router();
+router.put("/users/:userId/profile-view", checkProfileViewAccess);
+
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -23,19 +24,37 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+    storage,
+    limits: {
+        fileSize: 2 * 1024 * 1024, // 2MB
+    },
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
 
-router.post("/create", createProfile);
+        if (!allowedTypes.includes(file.mimetype)) {
+            return cb(new Error("Only JPG, JPEG and PNG files are allowed"));
+        }
 
-router.get("/user/:userId", getProfileByUser);
-router.put("/user/:userId", updateProfile);
+        cb(null, true);
+    },
+});
 
-router.put(
-    "/user/:userId/photo",
+
+router.post(
+    "/create",
     upload.single("profilePhoto"),
-    uploadProfilePhoto
+    createProfile
 );
 
+router.put(
+    "/user/:userId",
+    upload.single("profilePhoto"),
+    updateProfile
+);
+
+
+router.get("/user/:userId", getProfileByUser);
 // 5 profile view restriction
 router.put("/users/:userId/profile-view", checkProfileViewAccess);
 

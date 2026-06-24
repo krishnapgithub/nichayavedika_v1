@@ -1,5 +1,6 @@
 ﻿import { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 
 export default function LoginModal({ isOpen, onClose }) {
     const [mobile, setMobile] = useState("");
@@ -13,7 +14,7 @@ export default function LoginModal({ isOpen, onClose }) {
             setLoading(true);
 
             const response = await axios.post(
-                "${API_BASE_URL}/auth/login",
+                `${API_BASE_URL}/auth/login`,
                 { mobile, password }
             );
 

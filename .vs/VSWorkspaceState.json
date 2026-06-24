@@ -3,10 +3,8 @@
     "",
     "\\client",
     "\\client\\src",
-    "\\client\\src\\pages",
-    "\\client\\src\\Styles",
-    "\\server"
+    "\\client\\src\\pages"
   ],
-  "SelectedNode": "\\client\\src\\App.css",
+  "SelectedNode": "\\client\\src\\pages\\CreateProfile.jsx",
   "PreviewInSolutionExplorer": false
 }
