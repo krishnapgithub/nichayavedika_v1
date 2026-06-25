@@ -7,7 +7,7 @@ import ProfileCard from "../components/ProfileCard";
 import { Link } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import weddingHero from "../images/wedding-hero.png";
-
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -16,7 +16,7 @@ function Home() {
     const [likedProfiles, setLikedProfiles] = useState([]);
     const [profiles, setProfiles] = useState([]);
 
-
+    const [isRegisterOpen, setIsRegisterOpen] = useState(false);
    
 
     useEffect(() => {
@@ -61,7 +61,10 @@ function Home() {
         });
     }
 
+    const navigate = useNavigate();
     return (
+
+
         <>
             <Header />
 
@@ -93,21 +96,17 @@ function Home() {
 
                                 <div className="mt-8 flex gap-4">
                                     <button
-                                        onClick={() =>
-                                            document
-                                                .getElementById("search-section")
-                                                ?.scrollIntoView({ behavior: "smooth" })
-                                        }
+                                        onClick={() => navigate("/search")}
                                         className="px-6 py-3 bg-amber-400 text-black rounded-xl font-semibold hover:bg-amber-300 transition"
                                     >
                                         Search Now
                                     </button>
 
                                     <button
-                                        onClick={() => setIsRegisterOpen(true)}
+                                        onClick={() => navigate("/search")}
                                         className="px-6 py-3 border border-white rounded-xl hover:bg-white hover:text-[#800020] transition"
                                     >
-                                        Register Free
+                                        Register
                                     </button>
                                 </div>
                             </div>
@@ -135,7 +134,7 @@ function Home() {
                                     <option>Caste</option>
                                 </select>
 
-                                <button className="bg-[#800020] text-white rounded-xl font-semibold hover:bg-[#5c0017] transition">
+                                <button onClick={() => navigate("/search")} className="bg-[#800020] text-white rounded-xl font-semibold hover:bg-[#5c0017] transition">
                                     Search Profiles
                                 </button>
 
@@ -427,6 +426,8 @@ function Home() {
 
                 </div>
             </footer>
+
+            
         </>
     );
 }
